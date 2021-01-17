@@ -41,7 +41,7 @@ int main()
     while(camera.read(snapshot))
     {
         detectAndDisplay(snapshot);
-        waitKey(100); //wait for 30 ms
+        waitKey(50);
     }
     return 0;
 }
