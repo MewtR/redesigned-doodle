@@ -57,7 +57,8 @@ void detectAndDisplay(Mat frame)
 
     for_each(begin(faces), end(faces), [frame](Rect face)
             {
-                rectangle(frame, Rect(Point(face.x,face.y), Point(face.x+face.width,face.y+face.height)), Scalar(0, 255, 0), 4);
+                rectangle(frame, Rect(Point(face.x,face.y), Point(face.x+face.width,face.y+face.height)), Scalar(0, 255, 0), 1);
+                putText(frame, "Cascade classifier" , Point(face.x,face.y-3) , FONT_HERSHEY_SIMPLEX, 1.0, Scalar (0,255,0));
             });
 
     imshow( "Capture - Face detection", frame );
