@@ -27,15 +27,9 @@ int main()
         return -1;
     }
     //Load the cascades (pre trained models)
-    if (!face_cascade.load("haarcascade_frontalface_alt.xml"))
+    if (!face_cascade.load("data/haarcascade_frontalface_alt.xml"))
     {
         cout << " Unable to load face cascade " << endl;
-        return -1;
-    }
-
-    if (!eyes_cascade.load("haarcascade_eye_tree_eyeglasses.xml"))
-    {
-        cout << " Unable to load eyes cascade " << endl;
         return -1;
     }
 
