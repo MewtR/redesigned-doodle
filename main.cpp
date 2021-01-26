@@ -1,14 +1,15 @@
 #include "main.h"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
-#include <algorithm>
 
 using namespace std;
 using namespace cv;
+using namespace dlib;
 
-
+// From opencv
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
+
+// From dlib
+frontal_face_detector detector = get_frontal_face_detector();
 
 void detectAndDisplay(Mat frame);
 
@@ -52,12 +53,24 @@ void detectAndDisplay(Mat frame)
     cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
     equalizeHist(frame_gray, frame_gray); //not really sure what this does
     
-    vector<Rect> faces;
+    std::vector<Rect> faces;
     face_cascade.detectMultiScale(frame_gray, faces);
 
+    // dlib image
+    cv_image<bgr_pixel> cimg(frame); // Convert from opencv to dlib
+    std::vector<dlib::rectangle> dlibFaces = detector(cimg);
+
+    //Draw faces detected by dlib's face detector
+    for_each(begin(dlibFaces), end(dlibFaces), [frame](dlib::rectangle face){
+
+            cv::rectangle(frame, Point(face.left(), face.top()),Point(face.right(), face.bottom()), Scalar(0,0,255));
+            putText(frame, "Dlib HOG", Point(face.left(), face.top()-3), FONT_HERSHEY_PLAIN, 1.0, Scalar(0,0,255));
+            });
+
+    //Draw faces detected by opencv's cascade classifier
     for_each(begin(faces), end(faces), [frame](Rect face)
             {
-                rectangle(frame, Rect(Point(face.x,face.y), Point(face.x+face.width,face.y+face.height)), Scalar(0, 255, 0), 1);
+            cv::rectangle(frame, face, Scalar(0, 255, 0), 1);
                 putText(frame, "Cascade classifier" , Point(face.x,face.y-3) , FONT_HERSHEY_SIMPLEX, 1.0, Scalar (0,255,0));
             });
 
