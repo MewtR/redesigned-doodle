@@ -9,4 +9,5 @@
 #include "opencv2/objdetect.hpp"
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/opencv.h>
+#include "detector.h"
 #endif

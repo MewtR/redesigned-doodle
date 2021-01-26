@@ -14,8 +14,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(dlib)
 
 
-add_executable(main main.cpp)
+add_executable(main main.cpp detector/detector.cpp)
 target_link_libraries(main ${OpenCV_LIBS} dlib::dlib)
+target_include_directories(main PRIVATE detector)
 set_property(TARGET main PROPERTY CXX_STANDARD 20)
 set_property(TARGET main PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/..")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
