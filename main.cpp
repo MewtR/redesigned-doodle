@@ -18,14 +18,15 @@ int main()
     Mat pic = imread("data/randos.png");
     Mat snapshot;
     
+    /*
     VideoCapture camera(0);
 
     if (! camera.isOpened())
     {
         cout << "Error opening video device " << endl;
         return -1;
-    }
-    camera.read(snapshot);
+    }*/
+    //camera.read(snapshot);
     
 
     
@@ -50,11 +51,11 @@ int main()
 
 void detectAndDisplay(Mat frame)
 {
-    //std::vector<Rect> cascade_faces = cascade_detector.detectFaces(frame);
+    std::vector<Rect> cascade_faces = cascade_detector.detectFaces(frame);
     std::vector<Rect> hog_faces = hog_detector.detectFaces(frame);
     hog_detector.drawBoxAroundFaces(frame, hog_faces);
-    //cascade_detector.drawBoxAroundFaces(frame, cascade_faces);
-    imshow( "Capture - Face detection", frame );
+    cascade_detector.drawBoxAroundFaces(frame, cascade_faces);
+    //imshow( "Capture - Face detection", frame );
     //waitKey(0);
     imwrite("pic.png", frame);
 }

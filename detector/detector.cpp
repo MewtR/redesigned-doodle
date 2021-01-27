@@ -38,6 +38,7 @@ std::vector<Rect> HOGDetector::detectFaces(Mat frame)
     Mat up_frame;
     pyrUp(frame, up_frame); // Upsample to find smaller faces (by default doubles the size)
     pyrUp(up_frame, up_frame); // Upsample to find smaller faces (by default doubles the size)
+    pyrUp(up_frame, up_frame); // Upsample to find smaller faces (by default doubles the size)
     std::vector<Rect> faces;
     cv_image<bgr_pixel> cimg(up_frame); // Convert from opencv to dlib
     std::vector<dlib::rectangle> dlib_faces = detector(cimg);
@@ -47,8 +48,8 @@ std::vector<Rect> HOGDetector::detectFaces(Mat frame)
             {
             faces.push_back(
                     Rect(
-                        Point(dlib_face.left()/4, dlib_face.top()/4), // divide to remap points back to original image
-                        Point(dlib_face.right()/4, dlib_face.bottom()/4)
+                        Point(dlib_face.left()/8, dlib_face.top()/8), // divide to remap points back to original image
+                        Point(dlib_face.right()/8, dlib_face.bottom()/8)
                         )
                     );
             });
