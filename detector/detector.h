@@ -16,7 +16,7 @@ class Detector{
             for_each(begin(faces), end(faces), [frame, message, box_color, text_color](cv::Rect face)
             {
             cv::rectangle(frame, face, box_color, 1); //draw
-            //putText(frame, message , cv::Point(face.x,face.y-3) , cv::FONT_HERSHEY_SIMPLEX, 1.0, text_color); //write text
+            putText(frame, message , cv::Point(face.x,face.y-3) , cv::FONT_HERSHEY_SIMPLEX, 1.0, text_color); //write text
             });
         }
 };
