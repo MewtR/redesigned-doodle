@@ -35,7 +35,6 @@ HOGDetector::HOGDetector()
 
 std::vector<Rect> HOGDetector::detectFaces(Mat frame)
 {
-    Mat up_frame;
     std::vector<Rect> faces;
     cv_image<bgr_pixel> cimg(frame); // Convert from opencv to dlib
     std::vector<dlib::rectangle> dlib_faces = detector(cimg);
