@@ -1,4 +1,6 @@
 #include "main.h"
+#include "recognizor.h"
+#include "recognizor/recognizor.h"
 
 using namespace std;
 using namespace cv;
@@ -18,15 +20,19 @@ int main()
     
     VideoCapture camera(0);
 
+    std::vector<dlib::rectangle> faces; 
     if (! camera.isOpened())
     {
         cout << "Error opening video device " << endl;
         return -1;
     }
     
+    
     while(camera.read(snapshot))
     {
-        detectAndDisplay(snapshot);
+        //detectAndDisplay(snapshot);
+        faces = detectFaces(snapshot);
+        cout << "Number of faces detected: "<< faces.size() << endl;
         waitKey(25);
     }
     
