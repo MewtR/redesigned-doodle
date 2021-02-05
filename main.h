@@ -10,4 +10,5 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/opencv.h>
 #include "detector.h"
+#include "recognizor.h"
 #endif

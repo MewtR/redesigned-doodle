@@ -1,6 +1,4 @@
 #include "main.h"
-#include "recognizor.h"
-#include "recognizor/recognizor.h"
 
 using namespace std;
 using namespace cv;
@@ -17,6 +15,7 @@ void detectAndDisplay(Mat frame);
 int main()
 {
     Mat snapshot;
+    Mat snapshot_rgb;
     
     VideoCapture camera(0);
 
@@ -31,6 +30,8 @@ int main()
     while(camera.read(snapshot))
     {
         //detectAndDisplay(snapshot);
+        // Convert to RGB
+        cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
         faces = detectFaces(snapshot);
         cout << "Number of faces detected: "<< faces.size() << endl;
         waitKey(25);
