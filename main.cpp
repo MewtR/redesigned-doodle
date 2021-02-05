@@ -1,4 +1,5 @@
 #include "main.h"
+#include "dlib/opencv/cv_image.h"
 
 using namespace std;
 using namespace cv;
@@ -32,7 +33,9 @@ int main()
         //detectAndDisplay(snapshot);
         // Convert to RGB
         cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
-        faces = detectFaces(snapshot);
+        // convert to dlib style image
+        cv_image<rgb_pixel> img(snapshot_rgb); 
+        faces = detectFaces(img);
         cout << "Number of faces detected: "<< faces.size() << endl;
         waitKey(25);
     }

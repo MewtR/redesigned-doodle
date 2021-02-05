@@ -42,17 +42,15 @@ void setup()
     deserialize("data/dlib_face_recognition_resnet_model_v1.dat.bz2") >> net;
 }
 
-std::vector<dlib::rectangle> detectFaces(Mat frame)
+std::vector<dlib::rectangle> detectFaces(cv_image<rgb_pixel> cimg)
 {
-    cv_image<rgb_pixel> cimg(frame);
     std::vector<dlib::rectangle> faces = detector(cimg);
     return faces;
 }
 
 //The frame given to this function needs to be in RGB space.
-std::vector<matrix<rgb_pixel>> normalize(std::vector<dlib::rectangle> detectedFaces, Mat frame)
+std::vector<matrix<rgb_pixel>> normalize(std::vector<dlib::rectangle> detectedFaces, cv_image<rgb_pixel> img)
 {
-    cv_image<rgb_pixel> img(frame);
     std::vector<matrix<rgb_pixel>> faces;
     for_each(begin(detectedFaces), end(detectedFaces), [img, &faces](dlib::rectangle detectedFace) mutable {
             auto shape = sp(img, detectedFace);
