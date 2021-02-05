@@ -1,5 +1,4 @@
 #include "main.h"
-#include "dlib/opencv/cv_image.h"
 
 using namespace std;
 using namespace cv;
@@ -26,7 +25,8 @@ int main()
         cout << "Error opening video device " << endl;
         return -1;
     }
-    
+    // Load pre trained models
+    setup();
     
     while(camera.read(snapshot))
     {
@@ -37,6 +37,7 @@ int main()
         cv_image<rgb_pixel> img(snapshot_rgb); 
         faces = detectFaces(img);
         cout << "Number of faces detected: "<< faces.size() << endl;
+        normalize(faces, img);
         waitKey(25);
     }
     

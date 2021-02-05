@@ -4,4 +4,4 @@ main
 .cache
 build
 pictures
-*.bz2
+*.dat

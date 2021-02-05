@@ -38,8 +38,8 @@ anet_type net;
 
 void setup()
 {
-    deserialize("data/shape_predictor_5_face_landmarks.dat.bz2") >> sp;
-    deserialize("data/dlib_face_recognition_resnet_model_v1.dat.bz2") >> net;
+    deserialize("data/shape_predictor_5_face_landmarks.dat") >> sp;
+    deserialize("data/dlib_face_recognition_resnet_model_v1.dat") >> net;
 }
 
 std::vector<dlib::rectangle> detectFaces(cv_image<rgb_pixel> cimg)
