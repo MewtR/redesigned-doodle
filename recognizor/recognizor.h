@@ -10,4 +10,5 @@
 std::vector<dlib::rectangle> detectFaces(dlib::cv_image<dlib::rgb_pixel>);
 std::vector<dlib::matrix<dlib::rgb_pixel>> normalize(std::vector<dlib::rectangle>, dlib::cv_image<dlib::rgb_pixel>);
 void setup(void);
+std::vector<dlib::matrix<float, 0, 1>> convertToVector(std::vector<dlib::matrix<dlib::rgb_pixel>>);
 #endif

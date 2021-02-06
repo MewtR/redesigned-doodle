@@ -61,3 +61,8 @@ std::vector<matrix<rgb_pixel>> normalize(std::vector<dlib::rectangle> detectedFa
             });
     return faces;
 }
+
+std::vector<dlib::matrix<float, 0, 1>> convertToVector(std::vector<dlib::matrix<rgb_pixel>> faces)
+{
+    return net(faces);
+}

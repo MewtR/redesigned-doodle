@@ -11,4 +11,5 @@
 #include <dlib/opencv.h>
 #include "detector.h"
 #include "recognizor.h"
+#include <filesystem>
 #endif
