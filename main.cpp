@@ -68,7 +68,8 @@ int main()
             {
                 //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
                 float distance = length(known_face.second-face_descriptors[i]);
-                if (distance < 0.6)
+                cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
+                if (distance < 0.5)
                 {
                     faces_and_labels.insert({faces[i], known_face.first});
                     match = true;
@@ -83,7 +84,7 @@ int main()
         drawBoxAroundFaces(snapshot, faces_and_labels);
         }
         imshow( "Capture - Face detection", snapshot);
-        waitKey(25);
+        waitKey(1);
     }
     
     return 0;
