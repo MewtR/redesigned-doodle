@@ -42,7 +42,7 @@ std::vector<Rect> HOGDetector::detectFaces(Mat frame)
             {
             faces.push_back(
                     Rect(
-                        Point(dlib_face.left(), dlib_face.top()), // divide to remap points back to original image
+                        Point(dlib_face.left(), dlib_face.top()), 
                         Point(dlib_face.right(), dlib_face.bottom())
                         )
                     );

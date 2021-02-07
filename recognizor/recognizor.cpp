@@ -66,3 +66,20 @@ std::vector<dlib::matrix<float, 0, 1>> convertToVector(std::vector<dlib::matrix<
 {
     return net(faces);
 }
+void drawBoxAroundFaces(Mat frame, std::map<dlib::rectangle, string> faces_and_labels)
+{
+    Scalar known(0,255,0);
+    Scalar unknown(0,0,255);
+    for(const auto& [face, label]: faces_and_labels) 
+    {
+        Rect cv_face(Point(face.left(), face.top()), Point(face.right(), face.bottom()));
+       if (label == "?????") 
+       {
+           cv::rectangle(frame, cv_face, unknown, 1);
+           putText(frame, label, Point(cv_face.x, cv_face.y-3), cv::FONT_HERSHEY_SIMPLEX, 1.0, unknown);
+       }else{
+           cv::rectangle(frame, cv_face, known, 1);
+           putText(frame, label, Point(cv_face.x, cv_face.y-3), cv::FONT_HERSHEY_SIMPLEX, 1.0, known);
+       }
+    }
+}
