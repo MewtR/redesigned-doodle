@@ -47,21 +47,24 @@ int main()
     setup();
     //train(pic, "Aghiles", known_faces);
     
-    //while(camera.read(snapshot))
-    //{
+    while(camera.read(snapshot))
+    {
         //detectAndDisplay(snapshot);
         // Convert to RGB
-        //cvtColor(pic, pic_rgb, COLOR_BGR2RGB);
-        //// convert to dlib style image
-        //cv_image<rgb_pixel> img(pic_rgb); 
-        //faces = detectFaces(img);
-        //cout << "Number of faces detected: "<< faces.size() << endl;
-        //normalized_faces = normalize(faces, img);
-        //face_descriptors = convertToVector(normalized_faces);
-        //imshow( "Capture - Face detection", pic_rgb );
-        //cout << "Face descriptor size: "<< face_descriptors.size() << endl;
-        //waitKey(0);
-    //}
+        cvtColor(pic, pic_rgb, COLOR_BGR2RGB);
+        // convert to dlib style image
+        cv_image<rgb_pixel> img(pic_rgb); 
+        faces = detectFaces(img);
+        normalized_faces = normalize(faces, img);
+        face_descriptors = convertToVector(normalized_faces);
+        cout << "Face descriptor size: "<< face_descriptors.size() << endl;
+        for (auto const& known_face : known_faces)
+        {
+            cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - face_descriptors[0])  << endl;
+        }
+        imshow( "Capture - Face detection", pic_rgb );
+        waitKey(0);
+    }
     
     return 0;
 }
