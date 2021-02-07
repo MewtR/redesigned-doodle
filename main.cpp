@@ -11,8 +11,8 @@ CascadeDetector cascade_detector; // calls my default constructor
 // From dlib
 HOGDetector hog_detector; // calls my default constructor
 
-void detectAndDisplay(Mat frame);
-void train(Mat frame, String label);
+void detectAndDisplay(Mat);
+void train(Mat, string, std::map<string, matrix<float,0,1>>);
 
 int main()
 {
@@ -45,7 +45,7 @@ int main()
     }
     // Load pre trained models
     setup();
-//    train(pic, "Lemine");
+    //train(pic, "Aghiles", known_faces);
     
     //while(camera.read(snapshot))
     //{
@@ -74,10 +74,9 @@ void detectAndDisplay(Mat frame)
     cascade_detector.drawBoxAroundFaces(frame, cascade_faces);
     imshow( "Capture - Face detection", frame );
 }
-void train(Mat frame, String label)
+void train(Mat frame, String label, std::map<string, matrix<float,0,1>> known_faces)
 {
         Mat frame_rgb;
-        std::map<string, matrix<float,0,1>> face_to_save;
 
         std::vector<dlib::rectangle> faces; 
         std::vector<matrix<rgb_pixel>> normalized_faces; 
@@ -93,8 +92,14 @@ void train(Mat frame, String label)
         }
         normalized_faces = normalize(faces, img);
         face_descriptors = convertToVector(normalized_faces); //has a size of 1 because the input should only have one face
+        cout << "Face descriptor size: "<< face_descriptors.size() << endl;
+        std::map<string, matrix<float,0,1>>::iterator element = known_faces.find(label);
+        if (element != known_faces.end())
+        {
+            // element already exists, delete it and save new one
+            known_faces.erase(element);
+        }
+        known_faces.insert({label, face_descriptors[0]});
         cout << "Saving..." << endl;
-
-        face_to_save.insert({label, face_descriptors[0]});
-        serialize("data/knownfaces/faces.dat") << face_to_save;
+        serialize("data/knownfaces/faces.dat") << known_faces;
 }
