@@ -16,10 +16,8 @@ void train(Mat, string, std::map<string, matrix<float,0,1>>);
 
 int main()
 {
-    Mat snapshot;
-    Mat snapshot_rgb;
-    //Mat pic = imread("data/pictures/lemine.png");
-    //Mat pic_rgb;
+    Mat pic = imread("data/pictures/lemine.png");
+    Mat pic_rgb;
 
     std::map<string, matrix<float,0,1>> known_faces;
 
@@ -45,49 +43,7 @@ int main()
     }
     // Load pre trained models
     setup();
-    //train(pic, "Aghiles", known_faces);
-    
-    while(camera.read(snapshot))
-    {
-        std::map<dlib::rectangle, string> faces_and_labels; // this var should only have scope within the while loop
-        //detectAndDisplay(snapshot);
-        // Convert to RGB
-        cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
-        // convert to dlib style image
-        cv_image<rgb_pixel> img(snapshot_rgb); 
-        faces = detectFaces(img);
-        if (faces.size() > 0)
-        {
-        normalized_faces = normalize(faces, img);
-        face_descriptors = convertToVector(normalized_faces);
-        cout << "Face descriptor size: "<< face_descriptors.size() << endl;
-        //Using a regular for loop here because I'm banking on the fact that 
-        //if a face has index i, it's corresponding face_descriptor will also be at index i
-        //this seems to be a correct assumption
-        for (int i = 0; i < face_descriptors.size(); ++i) // one descriptor = one face
-        {
-            bool match = false;
-            for (auto const& known_face : known_faces)
-            {
-                //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
-                float distance = length(known_face.second-face_descriptors[i]);
-                if (distance < 0.6)
-                {
-                    faces_and_labels.insert({faces[i], known_face.first});
-                    match = true;
-                    break; // found match leave
-                }
-            }
-            if (!match)
-            {
-                faces_and_labels.insert({faces[i], "?????"});
-            }
-        }
-        drawBoxAroundFaces(snapshot, faces_and_labels);
-        }
-        imshow( "Capture - Face detection", snapshot);
-        waitKey(25);
-    }
+    train(pic, "Mohamed Lemine", known_faces);
     
     return 0;
 }
@@ -120,6 +76,10 @@ void train(Mat frame, String label, std::map<string, matrix<float,0,1>> known_fa
         face_descriptors = convertToVector(normalized_faces); //has a size of 1 because the input should only have one face
         cout << "Face descriptor size: "<< face_descriptors.size() << endl;
         std::map<string, matrix<float,0,1>>::iterator element = known_faces.find(label);
+        /*
+        std::map<string, matrix<float,0,1>>::iterator lemine = known_faces.find("Lemine");
+        known_faces.erase("Lemine");
+        */
         if (element != known_faces.end())
         {
             // element already exists, delete it and save new one
