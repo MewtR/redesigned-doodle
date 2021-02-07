@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+SET(CMAKE_C_COMPILER /usr/bin/clang)
+SET(CMAKE_CXX_COMPILER /usr/bin/clang++)
 project(main)
 
 find_package(OpenCV REQUIRED)
@@ -21,4 +23,3 @@ target_include_directories(main PRIVATE recognizor)
 set_property(TARGET main PROPERTY CXX_STANDARD 20)
 set_property(TARGET main PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/..")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-

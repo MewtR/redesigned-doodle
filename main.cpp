@@ -46,6 +46,7 @@ int main()
     
     while(camera.read(snapshot))
     {
+        
         std::map<dlib::rectangle, string> faces_and_labels; // this var should only have scope within the while loop
         //detectAndDisplay(snapshot);
         // Convert to RGB
