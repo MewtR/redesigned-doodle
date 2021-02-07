@@ -18,8 +18,6 @@ int main()
 {
     Mat snapshot;
     Mat snapshot_rgb;
-    //Mat pic = imread("data/pictures/lemine.png");
-    //Mat pic_rgb;
 
     std::map<string, matrix<float,0,1>> known_faces;
 
@@ -45,7 +43,6 @@ int main()
     }
     // Load pre trained models
     setup();
-    //train(pic, "Aghiles", known_faces);
     
     while(camera.read(snapshot))
     {
