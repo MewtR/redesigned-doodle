@@ -47,6 +47,7 @@ int main()
     while(camera.read(snapshot))
     {
         
+        
         std::map<dlib::rectangle, string> faces_and_labels; // this var should only have scope within the while loop
         //detectAndDisplay(snapshot);
         // Convert to RGB
@@ -58,7 +59,7 @@ int main()
         {
         normalized_faces = normalize(faces, img);
         face_descriptors = convertToVector(normalized_faces);
-        cout << "Face descriptor size: "<< face_descriptors.size() << endl;
+        //cout << "Face descriptor size: "<< face_descriptors.size() << endl;
         //Using a regular for loop here because I'm banking on the fact that 
         //if a face has index i, it's corresponding face_descriptor will also be at index i
         //this seems to be a correct assumption
@@ -69,7 +70,7 @@ int main()
             {
                 //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
                 float distance = length(known_face.second-face_descriptors[i]);
-                cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
+                //cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
                 if (distance < 0.5)
                 {
                     faces_and_labels.insert({faces[i], known_face.first});
