@@ -1,5 +1,4 @@
 #include "main.h"
-#include "dlib/dir_nav/dir_nav_extensions.h"
 
 using namespace std;
 using namespace cv;
@@ -44,9 +43,9 @@ int main()
     // Load pre trained models
     setup();
     
+    CountsPerSec cps;
     while(camera.read(snapshot))
     {
-        
         
         std::map<dlib::rectangle, string> faces_and_labels; // this var should only have scope within the while loop
         //detectAndDisplay(snapshot);
@@ -85,7 +84,9 @@ int main()
         }
         drawBoxAroundFaces(snapshot, faces_and_labels);
         }
+        put_iterations_per_sec(snapshot, cps.counts_per_sec());
         imshow( "Capture - Face detection", snapshot);
+        cps.increment();
         waitKey(1);
     }
     

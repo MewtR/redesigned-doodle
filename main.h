@@ -12,4 +12,6 @@
 #include "detector.h"
 #include "recognizor.h"
 #include <filesystem>
+#include "performance.h"
+#include "dlib/dir_nav/dir_nav_extensions.h"
 #endif

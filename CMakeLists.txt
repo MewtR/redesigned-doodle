@@ -5,7 +5,7 @@ SET(CMAKE_CXX_FLAGS "-Ofast")
 project(main)
 
 find_package(OpenCV REQUIRED)
-include_directories( ${OpenCV_INCLUDE_DIRS})
+find_package(fmt REQUIRED)
 
 ### dlib
 include(FetchContent)
@@ -17,12 +17,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(dlib)
 
 
-add_executable(main main.cpp detector/detector.cpp recognizor/recognizor.cpp)
+add_executable(main main.cpp detector/detector.cpp recognizor/recognizor.cpp util/performance.cpp)
 
-target_link_libraries(main ${OpenCV_LIBS} dlib::dlib)
+target_link_libraries(main ${OpenCV_LIBS} dlib::dlib fmt::fmt)
 
-target_include_directories(main PRIVATE detector)
-target_include_directories(main PRIVATE recognizor)
+target_include_directories(main PRIVATE detector recognizor util ${OpenCV_INCLUDE_DIRS})
 
 set_property(TARGET main PROPERTY CXX_STANDARD 20)
 set_property(TARGET main PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/..")
