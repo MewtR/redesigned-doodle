@@ -5,3 +5,4 @@ main
 build
 pictures
 *.dat
+.gdb_history

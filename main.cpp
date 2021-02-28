@@ -1,4 +1,5 @@
 #include "main.h"
+#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -17,6 +18,7 @@ int main()
 {
     Mat snapshot;
     Mat snapshot_rgb;
+    std::mutex snapshot_mutex;
 
     std::map<string, matrix<float,0,1>> known_faces;
 
@@ -30,11 +32,12 @@ int main()
             }
         }
     
-    VideoCapture camera(0);
 
     std::vector<dlib::rectangle> faces; 
     std::vector<matrix<rgb_pixel>> normalized_faces; 
     std::vector<matrix<float,0,1>> face_descriptors; 
+
+    VideoCapture camera(0);
     if (! camera.isOpened())
     {
         cout << "Error opening video device " << endl;
@@ -42,53 +45,91 @@ int main()
     }
     // Load pre trained models
     setup();
-    
+    std::atomic<bool> grabbed = camera.read(snapshot);
+
+    std::thread capture_thread([&camera, &snapshot, &grabbed, &snapshot_mutex]() mutable
+            {
+                while(grabbed)
+                {
+                    {
+                    cout << "Capture thread " << endl;
+                    std::lock_guard<std::mutex> lock(snapshot_mutex);
+                    cout << "Capture thread lock acquired" << endl;
+                    grabbed = camera.read(snapshot); // grabs new snapshot
+                    }
+                    std::this_thread::yield();
+                }
+            });
+
     CountsPerSec cps;
-    while(camera.read(snapshot))
+    while(grabbed)
     {
         
         std::map<dlib::rectangle, string> faces_and_labels; // this var should only have scope within the while loop
         //detectAndDisplay(snapshot);
-        // Convert to RGB
-        cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
+        { // separate scope so that lock is realease after
+            // Convert to RGB
+            cout << "Main thread convert to RGB" << endl;
+            std::lock_guard<std::mutex> lock(snapshot_mutex);
+            cout << "Main thread convert to RGB lock acquired" << endl;
+            cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
+            // lock should be released here
+        }
         // convert to dlib style image
         cv_image<rgb_pixel> img(snapshot_rgb); 
         faces = detectFaces(img);
         if (faces.size() > 0)
         {
-        normalized_faces = normalize(faces, img);
-        face_descriptors = convertToVector(normalized_faces);
-        //cout << "Face descriptor size: "<< face_descriptors.size() << endl;
-        //Using a regular for loop here because I'm banking on the fact that 
-        //if a face has index i, it's corresponding face_descriptor will also be at index i
-        //this seems to be a correct assumption
-        for (int i = 0; i < face_descriptors.size(); ++i) // one descriptor = one face
-        {
-            bool match = false;
-            for (auto const& known_face : known_faces)
+            normalized_faces = normalize(faces, img);
+            face_descriptors = convertToVector(normalized_faces);
+            //cout << "Face descriptor size: "<< face_descriptors.size() << endl;
+            //Using a regular for loop here because I'm banking on the fact that 
+            //if a face has index i, it's corresponding face_descriptor will also be at index i
+            //this seems to be a correct assumption
+            for (int i = 0; i < face_descriptors.size(); ++i) // one descriptor = one face
             {
-                //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
-                float distance = length(known_face.second-face_descriptors[i]);
-                //cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
-                if (distance < 0.5)
+                bool match = false;
+                for (auto const& known_face : known_faces)
                 {
-                    faces_and_labels.insert({faces[i], known_face.first});
-                    match = true;
-                    break; // found match leave
+                    //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
+                    float distance = length(known_face.second-face_descriptors[i]);
+                    //cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
+                    if (distance < 0.5)
+                    {
+                        faces_and_labels.insert({faces[i], known_face.first});
+                        match = true;
+                        break; // found match leave
+                    }
+                }
+                if (!match)
+                {
+                    faces_and_labels.insert({faces[i], "?????"});
                 }
             }
-            if (!match)
             {
-                faces_and_labels.insert({faces[i], "?????"});
+                cout << "Main thread draw boxes" << endl;
+                std::lock_guard<std::mutex> lock(snapshot_mutex);
+                cout << "Main thread draw boxes lock acquired" << endl;
+                drawBoxAroundFaces(snapshot, faces_and_labels);
             }
         }
-        drawBoxAroundFaces(snapshot, faces_and_labels);
+        {
+            cout << "Main thread put iterations" << endl;
+            std::lock_guard<std::mutex> lock(snapshot_mutex);
+            cout << "Main thread put iterations lock acquired" << endl;
+            put_iterations_per_sec(snapshot, cps.counts_per_sec());
         }
-        put_iterations_per_sec(snapshot, cps.counts_per_sec());
-        imshow( "Capture - Face detection", snapshot);
+        {
+            cout << "Main thread display snapshot" << endl;
+            std::lock_guard<std::mutex> lock(snapshot_mutex);
+            cout << "Main thread display snapshot lock acquired" << endl;
+            imshow( "Capture - Face detection", snapshot);
+        }
         cps.increment();
         waitKey(1);
     }
+
+    capture_thread.join(); // never reached? because I sigint to terminate the program
     
     return 0;
 }

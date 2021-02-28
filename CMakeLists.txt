@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 SET(CMAKE_C_COMPILER /usr/bin/clang)
 SET(CMAKE_CXX_COMPILER /usr/bin/clang++)
-SET(CMAKE_CXX_FLAGS "-Ofast")
+#SET(CMAKE_CXX_FLAGS "-Ofast") # Optimizing
+SET(CMAKE_CXX_FLAGS "-g -O0") # Debugging
 project(main)
 
 find_package(OpenCV REQUIRED)

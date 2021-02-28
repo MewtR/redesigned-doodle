@@ -14,4 +14,6 @@
 #include <filesystem>
 #include "performance.h"
 #include "dlib/dir_nav/dir_nav_extensions.h"
+#include <mutex>
+#include <atomic>
 #endif
