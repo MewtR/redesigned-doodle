@@ -14,6 +14,9 @@
 #include <filesystem>
 #include "performance.h"
 #include "dlib/dir_nav/dir_nav_extensions.h"
+// Multithreading
 #include <mutex>
 #include <atomic>
+#include <thread>
+#include <condition_variable>
 #endif

@@ -1,5 +1,4 @@
 #include "main.h"
-#include <thread>
 
 using namespace std;
 using namespace cv;
@@ -19,6 +18,7 @@ int main()
     Mat snapshot;
     Mat snapshot_rgb;
     std::mutex snapshot_mutex;
+    std::condition_variable cv;
 
     std::map<string, matrix<float,0,1>> known_faces;
 
@@ -62,7 +62,7 @@ int main()
                 }
             });
 
-    std::thread process_snapshot([&grabbed, &snapshot, &snapshot_mutex, &snapshot_rgb, known_faces]() mutable
+    std::thread process_snapshot([&grabbed, &snapshot, &snapshot_mutex, &snapshot_rgb, known_faces, &cv]() mutable
             {
                 std::vector<dlib::rectangle> faces; 
                 std::vector<matrix<rgb_pixel>> normalized_faces; 
@@ -74,7 +74,7 @@ int main()
                     { // separate scope so that lock is realease after
                         // Convert to RGB
                         cout << "Process thread convert to RGB" << endl;
-                        std::lock_guard<std::mutex> lock(snapshot_mutex);
+                        std::unique_lock<std::mutex> lock(snapshot_mutex);
                         cout << "Process thread convert to RGB lock acquired" << endl;
                         cvtColor(snapshot, snapshot_rgb, COLOR_BGR2RGB);
                         // lock should be released here
@@ -111,9 +111,14 @@ int main()
                         }
                         {
                             cout << "Process thread draw boxes" << endl;
-                            std::lock_guard<std::mutex> lock(snapshot_mutex);
+                            std::unique_lock<std::mutex> lock(snapshot_mutex); //unique_lock to allow for manually unlocking
                             cout << "Process thread draw boxes lock acquired" << endl;
                             drawBoxAroundFaces(snapshot, faces_and_labels); // need to find a away to continue main thread from here so that snapshot shown is the one with the drawn boxes
+
+                            // Manual unlocking is done before notifying, to avoid waking up
+                            // the waiting thread only to block again (see notify_one for details)
+                            lock.unlock();
+                            cv.notify_one();
                         }
                     }
                     faces_and_labels.clear();
@@ -125,12 +130,12 @@ int main()
     {
         {
             cout << "Main thread put iterations" << endl;
-            std::lock_guard<std::mutex> lock(snapshot_mutex);
+            std::unique_lock<std::mutex> lock(snapshot_mutex); // needed when waiting with condition variable
+            cv.wait(lock); // releases lock and waits until notified
             cout << "Main thread put iterations lock acquired" << endl;
             put_iterations_per_sec(snapshot, cps.counts_per_sec());
             imshow( "Capture - Face detection", snapshot);
         }
-        std::this_thread::yield();
         cps.increment();
         waitKey(1);
     }
