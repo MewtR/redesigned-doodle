@@ -124,15 +124,16 @@ int main()
     while(grabbed)
     {
         {
-            std::unique_lock<std::mutex> faces_lock(faces_and_labels_mutex);
-            cout << "Main thread faces lock acquired" << endl;
-            cout << "Number of faces to draw: " << faces_and_labels.size() << endl;
-            std::lock_guard<std::mutex> lock(snapshot_mutex); // needed when waiting with condition variable
+            std::lock_guard<std::mutex> lock(snapshot_mutex); 
             cout << "Main thread put iterations lock acquired" << endl;
-            if(!faces_and_labels.empty()){
-                cout << "DRAWING FACES!!!!!!!!!!" << endl;;
-                drawBoxAroundFaces(snapshot, faces_and_labels); 
-                faces_lock.unlock();
+            {
+                std::unique_lock<std::mutex> faces_lock(faces_and_labels_mutex);
+                cout << "Main thread faces lock acquired" << endl;
+                if(!faces_and_labels.empty()){
+                    cout << "DRAWING FACES!!!!!!!!!!" << endl;;
+                    drawBoxAroundFaces(snapshot, faces_and_labels); 
+                    faces_lock.unlock();
+                }
             }
             //cv.wait(lock); // releases lock and waits until notified
             put_iterations_per_sec(snapshot, cps.counts_per_sec());
