@@ -18,7 +18,6 @@ int main()
     Mat snapshot;
     std::mutex snapshot_mutex;
     std::mutex faces_and_labels_mutex;
-    //std::condition_variable cv;
 
     std::map<string, matrix<float,0,1>> known_faces;
 
@@ -62,12 +61,11 @@ int main()
                 }
             });
 
-    std::thread process_snapshot([&grabbed, &snapshot, &snapshot_mutex, known_faces, &faces_and_labels_mutex]() mutable
+    std::thread process_snapshot([&grabbed, &snapshot, &snapshot_mutex, known_faces, &faces_and_labels_mutex, &faces_and_labels]() mutable
             {
                 std::vector<dlib::rectangle> faces; 
                 std::vector<matrix<rgb_pixel>> normalized_faces; 
                 std::vector<matrix<float,0,1>> face_descriptors; 
-                std::map<dlib::rectangle, string> faces_and_labels; 
                 Mat snapshot_rgb;
 
                 while(grabbed)
@@ -94,14 +92,14 @@ int main()
                         {
                             std::lock_guard<std::mutex> lock(faces_and_labels_mutex);
                             cout << "Process thread faces lock acquired" << endl;
+                            if(!faces_and_labels.empty()) faces_and_labels.clear();
                             for (int i = 0; i < face_descriptors.size(); ++i) // one descriptor = one face
                             {
                                 bool match = false;
                                 for (auto const& known_face : known_faces)
                                 {
-                                    //cout << "Distance between detected face and " << known_face.first << ": "<< length(known_face.second - descriptor)  << endl;
                                     float distance = length(known_face.second-face_descriptors[i]);
-                                    //cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
+                                    cout << "Distance between detected face and " << known_face.first << " is: " << distance << endl;
                                     if (distance < 0.5)
                                     {
                                         faces_and_labels.insert({faces[i], known_face.first});
@@ -115,27 +113,7 @@ int main()
                                 }
                             }
                         }
-                        /*
-                        {
-                            cout << "Process thread draw boxes" << endl;
-                            std::lock_guard<std::mutex> lock(snapshot_mutex); //unique_lock to allow for manually unlocking
-                            cout << "Process thread draw boxes lock acquired" << endl;
-                            drawBoxAroundFaces(snapshot, faces_and_labels); // need to find a away to continue main thread from here so that snapshot shown is the one with the drawn boxes
-
-                            // Manual unlocking is done before notifying, to avoid waking up
-                            // the waiting thread only to block again (see notify_one for details)
-                            //lock.unlock();
-                            //cv.notify_one();
-                        }
-                        */
-                    }
-                    //cv.notify_one();
-
-                    std::this_thread::yield();
-                    {
-                        cout << "Process thread clear faces lock acquired" << endl;
-                        std::lock_guard<std::mutex> lock(faces_and_labels_mutex);
-                        if(!faces_and_labels.empty()) faces_and_labels.clear();
+                        std::this_thread::yield();
                     }
                 }
             });
@@ -146,19 +124,18 @@ int main()
     while(grabbed)
     {
         {
-            cout << "Main thread put iterations" << endl;
+            std::unique_lock<std::mutex> faces_lock(faces_and_labels_mutex);
+            cout << "Main thread faces lock acquired" << endl;
+            cout << "Number of faces to draw: " << faces_and_labels.size() << endl;
             std::lock_guard<std::mutex> lock(snapshot_mutex); // needed when waiting with condition variable
-            //cv.wait(lock); // releases lock and waits until notified
             cout << "Main thread put iterations lock acquired" << endl;
-            put_iterations_per_sec(snapshot, cps.counts_per_sec());
-            {
-                std::lock_guard<std::mutex> faces_lock(faces_and_labels_mutex);
-                cout << "Main thread faces lock acquired" << endl;
-                if(!faces_and_labels.empty()){
-                    cout << "DRAWING FACES!!!!!!!!!!" << endl;;
-                    drawBoxAroundFaces(snapshot, faces_and_labels); 
-                }
+            if(!faces_and_labels.empty()){
+                cout << "DRAWING FACES!!!!!!!!!!" << endl;;
+                drawBoxAroundFaces(snapshot, faces_and_labels); 
+                faces_lock.unlock();
             }
+            //cv.wait(lock); // releases lock and waits until notified
+            put_iterations_per_sec(snapshot, cps.counts_per_sec());
             imshow( "Capture - Face detection", snapshot);
         }
         cps.increment();
