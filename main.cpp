@@ -17,6 +17,7 @@ int main()
 {
     Mat snapshot;
     std::mutex snapshot_mutex;
+    std::map<dlib::rectangle, string> faces_and_labels;
     std::mutex faces_and_labels_mutex;
 
     std::map<string, matrix<float,0,1>> known_faces;
@@ -31,12 +32,6 @@ int main()
             }
         }
     
-
-    std::vector<dlib::rectangle> faces; 
-    std::vector<matrix<rgb_pixel>> normalized_faces; 
-    std::vector<matrix<float,0,1>> face_descriptors; 
-    std::map<dlib::rectangle, string> faces_and_labels; 
-
     VideoCapture camera(0);
     if (! camera.isOpened())
     {
